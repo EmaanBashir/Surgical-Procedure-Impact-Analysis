@@ -1,0 +1,76 @@
+---
+title: "Practice Coursework"
+output:
+  html_document: default
+---
+
+## Load the Data
+
+```{r}
+data<-read.csv('Surgery_20594616.csv')
+print(data)
+```
+## Exploratory Data Analysis
+
+```{r}
+# Summary for Current Surgeries
+summary(data$Current.surgery)
+
+# Summary for New Surgeries
+summary(data$New.surgery)
+
+c_mu <- mean(data$Current.surgery)
+c_sd <- sd(data$Current.surgery)
+n_mu <- mean(data$New.surgery)
+n_sd <- sd(data$New.surgery)
+```
+### Visualisation
+```{r}
+boxplot(data$Current.surgery, main = 'Current Surgeries')
+boxplot(data$New.surgery, main = 'New Surgeries')
+```
+
+
+```{r}
+hist(data$Current.surgery, freq = FALSE, main = 'Histogram for Current Surgeries', xlab = 'Surgery time')
+curve(dnorm(x,c_mu,c_sd),3.5,10.9,col=2,add=TRUE)
+
+hist(data$New.surgery, freq = FALSE, main = 'Histogram for New Surgeries', xlab = 'Surgery time')
+curve(dnorm(x,n_mu,n_sd),3.5,11.4,col=2,add=TRUE)
+```
+## Question 1
+
+*Do the data from the new surgical procedure support the hypothesis that the new surgical procedure reduces the mean length of hospital stays?*
+
+```{r}
+t.test(data$Current.surgery, data$New.surgery, paired = TRUE, alt = 'greater', var.equal = TRUE)
+```
+As the p-value is smaller than 0.05 (assuming 5% significance level), we can reject the null 
+hypothesis. Therefore, we conclude that the true mean difference is greater than 0 and the new 
+surgical procedure has reduced the mean length.
+
+## Question 2
+
+*Using the Matched Case control study data, assess the size of reduction in the length of hospital stay due to the new surgical procedure.*
+
+```{r}
+# Calculate the mean difference
+mean_difference <- mean(data$Current.surgery - data$New.surgery)
+
+# Construct a confidence interval
+conf_interval <- t.test(data$Current.surgery, data$New.surgery, paired = TRUE)$conf.int
+
+# Display the results
+mean_difference
+conf_interval
+```
+The mean difference is 0.4103448 and is within the confidence interval.
+
+Lets perform a t-test to confirm that the new procedure has reduced the length of hospital stay by 0.41 days.
+
+```{r}
+t.test(data$Current.surgery, data$New.surgery, paired = TRUE, mu = 0.41)
+```
+Since, the p value is very large, we cannot reject the null hypothesis. Therefore, the true mean 
+difference is actually equal to 0.41.
+
